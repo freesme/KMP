@@ -1,3 +1,4 @@
+import co.touchlab.kermit.Logger
 import io.ktor.client.*
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.*
@@ -22,10 +23,11 @@ class RocketComponent {
     private suspend fun getDateOfLastSuccessfulLaunch(): String {
         val rockets: List<RocketLaunch> =
             httpClient.get("https://api.spacexdata.com/v4/launches").body()
+        Logger.d { rockets.toString() }
         val lastSuccessLaunch = rockets.last { it.launchSuccess == true }
+        Logger.i { lastSuccessLaunch.toString() }
         val date = Instant.parse(lastSuccessLaunch.launchDateUTC)
             .toLocalDateTime(TimeZone.currentSystemDefault())
-
         return "${date.month} ${date.dayOfMonth}, ${date.year}"
     }
 
@@ -33,7 +35,7 @@ class RocketComponent {
         try {
             "The last successful launch was on ${getDateOfLastSuccessfulLaunch()} 🚀"
         } catch (e: Exception) {
-            println("Exception during getting the date of the last successful launch $e")
+            Logger.e("Exception during getting the date of the last successful launch $e")
             "Error occurred"
         }
 
